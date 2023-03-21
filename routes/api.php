@@ -28,5 +28,6 @@ Route::group(['prefix' => 'v1'], function () {
     Route::group(['prefix' => 'product'], function () {
         Route::get('/', [ProductController::class, 'index']);
         Route::get('/{id}', [ProductController::class, 'show']);
+        Route::post('/', [ProductController::class, 'store']);
     });
 });
