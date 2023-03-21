@@ -107,6 +107,10 @@ class ProductController extends Controller
                 throw new \Exception();
             }
 
+            if ($product instanceof CustomException) {
+                throw $product;
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Success',
