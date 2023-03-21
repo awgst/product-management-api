@@ -125,4 +125,44 @@ class CategoryController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Update category by id.
+     * @param CreateCategoryRequest $request
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update(CreateCategoryRequest $request, int $id): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $data = $request->validated();
+            $category = $this->categoryService->update($id, $data);
+            if ($category === null) {
+                throw new \Exception();
+            }
+
+            if ($category instanceof CustomException) {
+                throw $category;
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Success',
+                'data' => (new CategoryResource($category))->single(),
+            ], 200);
+        } catch (CustomException $ce) {
+            return response()->json([
+                'success' => false,
+                'message' => $ce->getMessage(),
+                'data' => null,
+            ], $ce->getCode());
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] update : ", __CLASS__).$e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong',
+                'data' => null,
+            ], 500);
+        }
+    }
 }

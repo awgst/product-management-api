@@ -79,4 +79,29 @@ class EloquentCategoryRepository implements CategoryRepositoryInterface
             return null;
         }
     }
+
+    /**
+     * Update category.
+     * @param Category $category
+     * @param array<string, mixed> $data
+     * @return \App\Models\Category|null
+     */
+    public function update(Category $category, array $data): ?Category
+    {
+        try {
+            if (isset($data['name'])) {
+                $category->name = $data['name'];
+            }
+            if (isset($data['enable'])) {
+                $category->enable = $data['enable'];
+            }
+
+            $category->save();
+
+            return $category;
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] update : ", __CLASS__).$e->getMessage());
+            return null;
+        }
+    }
 }

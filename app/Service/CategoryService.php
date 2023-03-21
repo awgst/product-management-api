@@ -76,4 +76,26 @@ class CategoryService
             return null;
         }
     }
+
+    /**
+     * Update category.
+     * @param int $id
+     * @param array<string, mixed> $data
+     * @return \App\Models\Category|CustomException|null
+     */
+    public function update(int $id, array $data): Category|CustomException|null
+    {
+        try {
+            $category = $this->categoryRepository->getById($id);
+            if (is_null($category)) {
+                return new CustomException('Category not found', 404);
+            }
+            $updated = $this->categoryRepository->update($category, $data);
+
+            return $updated;
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] update : ", __CLASS__).$e->getMessage());
+            return null;
+        }
+    }
 }
