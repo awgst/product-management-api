@@ -72,4 +72,26 @@ class ProductService
             return null;
         }
     }
+
+    /**
+     * Update product
+     * @param int $id
+     * @param array<string, mixed> $data
+     * 
+     * @return Product|CustomException|null
+     */
+    public function update(int $id, array $data): Product|CustomException|null
+    {
+        try {
+            $product = $this->productRepository->getById($id);
+            if (is_null($product)) {
+                return new CustomException('Product not found', 404);
+            }
+
+            return $this->productRepository->update($product, $data);
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] update : ", __CLASS__).$e->getMessage());
+            return null;
+        }
+    }
 }

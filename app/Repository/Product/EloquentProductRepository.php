@@ -84,4 +84,33 @@ class EloquentProductRepository implements ProductRepositoryInterface
             return null;
         }
     }
+
+    /**
+     * Update product
+     * @param Product $product
+     * @param array<string, mixed> $data
+     * 
+     * @return Product|null
+     */
+    public function update(Product $product, array $data): Product|null
+    {
+        try {
+            if (isset($data['name'])) {
+                $product->name = $data['name'];
+            }
+            if (isset($data['description'])) {
+                $product->description = $data['description'];
+            }
+            if (isset($data['enable'])) {
+                $product->enable = $data['enable'];
+            }
+
+            $product->save();
+
+            return $product;
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] update : ", __CLASS__).$e->getMessage());
+            return null;
+        }
+    }
 }

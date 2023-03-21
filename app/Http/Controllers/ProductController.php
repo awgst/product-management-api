@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\CustomException;
 use App\Http\Requests\Product\CreateProductRequest;
+use App\Http\Requests\Product\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
 use App\Service\ProductService;
 use Illuminate\Http\Request;
@@ -119,6 +120,43 @@ class ProductController extends Controller
             ], $ce->getCode());
         } catch (\Exception $e) {
             Log::channel('exception')->error(sprintf("[%s] store : ", __CLASS__).$e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong',
+                'data' => null,
+            ], 500);
+        }
+    }
+
+    /**
+     * @param UpdateProductRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update(UpdateProductRequest $request)
+    {
+        try {
+            $product = $this->productService->update($request->id, $request->all());
+            if ($product === null) {
+                throw new \Exception();
+            }
+
+            if ($product instanceof CustomException) {
+                throw $product;
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Success',
+                'data' => (new ProductResource($product))->single()
+            ], 200);
+        } catch (CustomException $ce) {
+            return response()->json([
+                'success' => false,
+                'message' => $ce->getMessage(),
+                'data' => null,
+            ], $ce->getCode());
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] update : ", __CLASS__).$e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Something went wrong',

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\CustomException;
 use App\Http\Requests\Category\CreateCategoryRequest;
+use App\Http\Requests\Category\UpdateCategoryRequest;
 use App\Http\Resources\CategoryResource;
 use App\Service\CategoryService;
 use Illuminate\Http\Request;
@@ -128,14 +129,14 @@ class CategoryController extends Controller
 
     /**
      * Update category by id.
-     * @param CreateCategoryRequest $request
+     * @param UpdateCategoryRequest $request
      * @param int $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(CreateCategoryRequest $request, int $id): \Illuminate\Http\JsonResponse
+    public function update(UpdateCategoryRequest $request, int $id): \Illuminate\Http\JsonResponse
     {
         try {
-            $data = $request->validated();
+            $data = $request->all();
             $category = $this->categoryService->update($id, $data);
             if ($category === null) {
                 throw new \Exception();
