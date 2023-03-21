@@ -27,5 +27,9 @@ class AppServiceProvider extends ServiceProvider
             'App\Repository\Category\CategoryRepositoryInterface',
             'App\Repository\Category\EloquentCategoryRepository'
         );
+        $this->app->bind(
+            'App\Repository\Product\ProductRepositoryInterface',
+            'App\Repository\Product\EloquentProductRepository'
+        );
     }
 }
