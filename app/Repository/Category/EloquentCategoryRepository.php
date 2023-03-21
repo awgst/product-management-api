@@ -43,4 +43,19 @@ class EloquentCategoryRepository implements CategoryRepositoryInterface
             return null;
         }
     }
+
+    /**
+     * Get category by id.
+     * @param int $id
+     * @return \App\Models\Category|null
+     */
+    public function getById(int $id): ?Category
+    {
+        try {
+            return $this->model->find($id);
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] getById : ", __CLASS__).$e->getMessage());
+            return null;
+        }
+    }
 }

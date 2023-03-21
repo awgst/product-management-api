@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\CustomException;
 use App\Http\Resources\CategoryResource;
 use App\Service\CategoryService;
 use Illuminate\Http\Request;
@@ -55,6 +56,43 @@ class CategoryController extends Controller
                 'data' => null,
             ], 500);
         }
+    }
 
+    /**
+     * Get category by id.
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show(int $id): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $category = $this->categoryService->getById($id);
+            if ($category instanceof CustomException) {
+                throw $category;
+            }
+
+            if ($category === null) {
+                throw new \Exception();
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Success',
+                'data' => (new CategoryResource($category))->single(),
+            ], 200);
+        } catch (CustomException $ce) {
+            return response()->json([
+                'success' => false,
+                'message' => $ce->getMessage(),
+                'data' => null,
+            ], $ce->getCode());
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] show : ", __CLASS__).$e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong',
+                'data' => null,
+            ], 500);
+        }
     }
 }

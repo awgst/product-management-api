@@ -7,6 +7,11 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class CategoryResource extends JsonResource
 {
     /**
+     * @var bool
+     */
+    protected $single = false;
+
+    /**
      * Transform the resource into an array.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -14,9 +19,25 @@ class CategoryResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [
+        $response = [
             'id' => $this->id,
             'name' => $this->name,
         ];
+
+        if ($this->single) {
+            $response['enable'] = $this->enable;
+        }
+
+        return $response;
+    }
+
+    /**
+     * Single response
+     * 
+     * @return self
+     */
+    public function single(): self {
+        $this->single = true;
+        return $this;
     }
 }
