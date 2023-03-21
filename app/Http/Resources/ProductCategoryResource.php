@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class CategoryResource extends JsonResource
+class ProductCategoryResource extends JsonResource
 {
     /**
      * @var bool
@@ -22,23 +22,9 @@ class CategoryResource extends JsonResource
         $response = [
             'id' => $this->id,
             'name' => $this->name,
-            'products' => $this->products ? ProductCategoryResource::collection($this->products) : [],
+            'description' => $this->description,
         ];
 
-        if ($this->single) {
-            $response['enable'] = $this->enable;
-        }
-
         return $response;
-    }
-
-    /**
-     * Single response
-     * 
-     * @return self
-     */
-    public function single(): self {
-        $this->single = true;
-        return $this;
     }
 }

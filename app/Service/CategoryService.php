@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Exceptions\CustomException;
 use App\Models\Category;
 use App\Repository\Category\CategoryRepositoryInterface;
+use App\Repository\Product\ProductRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
 
@@ -14,15 +15,21 @@ class CategoryService
      * @var CategoryRepositoryInterface
      */
     private $categoryRepository;
-    
+
+    /**
+     * @var ProductRepositoryInterface
+     */
+    private $productRepository;
+
     /**
      * Create a new service instance.
      * 
      * @param CategoryRepositoryInterface $categoryRepository
      */
-    public function __construct(CategoryRepositoryInterface $categoryRepository)
+    public function __construct(CategoryRepositoryInterface $categoryRepository, ProductRepositoryInterface $productRepository)
     {
         $this->categoryRepository = $categoryRepository;
+        $this->productRepository = $productRepository;
     }
 
     /**
@@ -68,6 +75,18 @@ class CategoryService
     public function create(array $data): Category|CustomException|null
     {
         try {
+            // Check product
+            $products = $this->productRepository->getByIds($data['product_ids']);
+            if (is_null($products)) {
+                return new CustomException('Product not found', 404);
+            }
+
+            $productIds = $products->pluck('id')->toArray();
+            $diff = array_diff($data['product_ids'], $productIds);
+            if (count($diff) > 0) {
+                return new CustomException(sprintf('Product with id %s not found', implode(', ', $diff)), 400);
+            }
+            // Create category
             $category = $this->categoryRepository->create($data);
 
             return $category;
@@ -90,6 +109,21 @@ class CategoryService
             if (is_null($category)) {
                 return new CustomException('Category not found', 404);
             }
+
+            // Check product
+            if (isset($data['product_ids'])) {
+                $products = $this->productRepository->getByIds($data['product_ids']);
+                if (is_null($products)) {
+                    return new CustomException('Product not found', 404);
+                }
+
+                $productIds = $products->pluck('id')->toArray();
+                $diff = array_diff($data['product_ids'], $productIds);
+                if (count($diff) > 0) {
+                    return new CustomException(sprintf('Product with id %s not found', implode(', ', $diff)), 400);
+                }
+            }
+
             $updated = $this->categoryRepository->update($category, $data);
 
             return $updated;
@@ -116,6 +150,21 @@ class CategoryService
             return $deleted;
         } catch (\Exception $e) {
             Log::channel('exception')->error(sprintf("[%s] delete : ", __CLASS__).$e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Get by ids
+     * @param array<int> $ids
+     * @return \Illuminate\Database\Eloquent\Collection|null
+     */
+    public function getByIds(array $ids): ?\Illuminate\Database\Eloquent\Collection
+    {
+        try {
+            return $this->categoryRepository->getByIds($ids);
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] getByIds : ", __CLASS__).$e->getMessage());
             return null;
         }
     }

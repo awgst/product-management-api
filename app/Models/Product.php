@@ -6,18 +6,18 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Category extends Model
+class Product extends Model
 {
     use HasFactory;
 
     public $timestamps = false;
 
     /**
-     * Get the products for the category.
+     * Get the categories for the product.
      */
-    public function products(): BelongsToMany
+    public function categories(): BelongsToMany
     {
-        return $this->belongsToMany(Product::class, 'category_products');
+        return $this->belongsToMany(Category::class, 'category_products');
     }
 
     /**
@@ -31,6 +31,10 @@ class Category extends Model
     {
         if (isset($filters['name'])) {
             $query->where('name', 'like', '%'.$filters['name'].'%');
+        }
+
+        if (isset($filters['description'])) {
+            $query->where('description', 'like', '%'.$filters['description'].'%');
         }
 
         return $query;

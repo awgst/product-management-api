@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Category;
+namespace App\Http\Requests\Product;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateCategoryRequest extends FormRequest
+class UpdateProductRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -14,8 +14,6 @@ class CreateCategoryRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|max:255',
-            'product_ids' => 'required|array',
         ];
     }
 }

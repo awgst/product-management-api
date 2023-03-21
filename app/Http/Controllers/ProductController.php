@@ -3,53 +3,51 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\CustomException;
-use App\Http\Requests\Category\CreateCategoryRequest;
-use App\Http\Requests\Category\UpdateCategoryRequest;
-use App\Http\Resources\CategoryResource;
-use App\Service\CategoryService;
+use App\Http\Requests\Product\CreateProductRequest;
+use App\Http\Requests\Product\UpdateProductRequest;
+use App\Http\Resources\ProductResource;
+use App\Service\ProductService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
-class CategoryController extends Controller
+class ProductController extends Controller
 {
     /**
-     * @var CategoryService
+     * @var ProductService
      */
-    private $categoryService;
+    protected $productService;
 
     /**
-     * Create a new controller instance.
-     * @param CategoryService $categoryService
+     * ProductController constructor.
+     * @param ProductService $productService
      */
-    public function __construct(CategoryService $categoryService)
+    public function __construct(ProductService $productService)
     {
-        $this->categoryService = $categoryService;
+        $this->productService = $productService;
     }
 
     /**
-     * Get all categories.
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index(Request $request): \Illuminate\Http\JsonResponse
+    public function index(Request $request)
     {
         try {
-            $categories = $this->categoryService->getAll($request->all());
-            if ($categories === null) {
+            $products = $this->productService->getAll($request->all());
+            if ($products === null) {
                 throw new \Exception();
             }
 
-            $transformed = CategoryResource::collection($categories)
+            $transformed = ProductResource::collection($products)
                 ->response()
                 ->getData(true);
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Success',
                 'data' => $transformed['data'],
                 'pagination' => $transformed['links']
             ], 200);
-            
         } catch (\Exception $e) {
             Log::channel('exception')->error(sprintf("[%s] index : ", __CLASS__).$e->getMessage());
             return response()->json([
@@ -61,26 +59,25 @@ class CategoryController extends Controller
     }
 
     /**
-     * Get category by id.
-     * @param int $id
+     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show(int $id): \Illuminate\Http\JsonResponse
+    public function show(Request $request)
     {
         try {
-            $category = $this->categoryService->getById($id);
-            if ($category instanceof CustomException) {
-                throw $category;
+            $product = $this->productService->getById($request->id);
+            if ($product === null) {
+                throw new \Exception();
             }
 
-            if ($category === null) {
-                throw new \Exception();
+            if ($product instanceof CustomException) {
+                throw $product;
             }
 
             return response()->json([
                 'success' => true,
                 'message' => 'Success',
-                'data' => (new CategoryResource($category))->single(),
+                'data' => (new ProductResource($product))->single()
             ], 200);
         } catch (CustomException $ce) {
             return response()->json([
@@ -99,24 +96,32 @@ class CategoryController extends Controller
     }
 
     /**
-     * Create new category.
-     * @param CreateCategoryRequest $request
+     * @param CreateProductRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(CreateCategoryRequest $request): \Illuminate\Http\JsonResponse
+    public function store(CreateProductRequest $request)
     {
         try {
-            $data = $request->validated();
-            $category = $this->categoryService->create($data);
-            if ($category === null) {
+            $product = $this->productService->create($request->validated());
+            if ($product === null) {
                 throw new \Exception();
+            }
+
+            if ($product instanceof CustomException) {
+                throw $product;
             }
 
             return response()->json([
                 'success' => true,
                 'message' => 'Success',
-                'data' => (new CategoryResource($category))->single(),
+                'data' => (new ProductResource($product))->single()
             ], 200);
+        } catch (CustomException $ce) {
+            return response()->json([
+                'success' => false,
+                'message' => $ce->getMessage(),
+                'data' => null,
+            ], $ce->getCode());
         } catch (\Exception $e) {
             Log::channel('exception')->error(sprintf("[%s] store : ", __CLASS__).$e->getMessage());
             return response()->json([
@@ -128,28 +133,25 @@ class CategoryController extends Controller
     }
 
     /**
-     * Update category by id.
-     * @param UpdateCategoryRequest $request
-     * @param int $id
+     * @param UpdateProductRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(UpdateCategoryRequest $request, int $id): \Illuminate\Http\JsonResponse
+    public function update(UpdateProductRequest $request)
     {
         try {
-            $data = $request->all();
-            $category = $this->categoryService->update($id, $data);
-            if ($category === null) {
+            $product = $this->productService->update($request->id, $request->all());
+            if ($product === null) {
                 throw new \Exception();
             }
 
-            if ($category instanceof CustomException) {
-                throw $category;
+            if ($product instanceof CustomException) {
+                throw $product;
             }
 
             return response()->json([
                 'success' => true,
                 'message' => 'Success',
-                'data' => (new CategoryResource($category))->single(),
+                'data' => (new ProductResource($product))->single()
             ], 200);
         } catch (CustomException $ce) {
             return response()->json([
@@ -168,26 +170,25 @@ class CategoryController extends Controller
     }
 
     /**
-     * Delete category by id.
-     * @param int $id
+     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(int $id): \Illuminate\Http\JsonResponse
+    public function destroy(Request $request)
     {
         try {
-            $category = $this->categoryService->delete($id);
-            if ($category === null) {
+            $product = $this->productService->delete($request->id);
+            if ($product === null) {
                 throw new \Exception();
             }
 
-            if ($category instanceof CustomException) {
-                throw $category;
+            if ($product instanceof CustomException) {
+                throw $product;
             }
 
             return response()->json([
                 'success' => true,
                 'message' => 'Success',
-                'data' => null,
+                'data' => null
             ], 200);
         } catch (CustomException $ce) {
             return response()->json([

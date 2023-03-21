@@ -1,41 +1,43 @@
 <?php
 
-namespace App\Repository\Category;
+namespace App\Repository\Product;
 
-use App\Models\Category;
+use App\Models\Product;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class EloquentCategoryRepository implements CategoryRepositoryInterface
+class EloquentProductRepository implements ProductRepositoryInterface
 {
     /**
-     * @var \App\Models\Category
+     * @var Product
      */
-    private $model;
+    private Product $product;
 
     /**
-     * Create a new repository instance.
-     * @param \App\Models\Category $model
+     * Create a new EloquentProductRepository instance.
+     * @param Product $product
      */
-    public function __construct(Category $model)
+    public function __construct(Product $product)
     {
-        $this->model = $model;
+        $this->product = $product;
     }
 
     /**
-     * Get all categories.
+     * Get all products
      * @param array<string, mixed> $filters
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator|null
+     * 
+     * @return LengthAwarePaginator|null
      */
-    public function getAll(array $filters): ?LengthAwarePaginator
+    public function getAll(array $filters): LengthAwarePaginator|null
     {
         try {
             $orderBy = $filters['order_by'] ?? 'id';
             $order = $filters['order'] ?? 'asc';
 
-            return $this->model
-                ->with(['products' => function ($q) {
+            return $this->product
+                ->with(['categories' => function ($q) {
                     $q->where('enable', true);
                 }])
                 ->filter($filters)
@@ -49,15 +51,16 @@ class EloquentCategoryRepository implements CategoryRepositoryInterface
     }
 
     /**
-     * Get category by id.
+     * Get product by id
      * @param int $id
-     * @return \App\Models\Category|null
+     * 
+     * @return Product|null
      */
-    public function getById(int $id): ?Category
+    public function getById(int $id): Product|null
     {
         try {
-            return $this->model
-                ->with(['products' => function ($q) {
+            return $this->product
+                ->with(['categories' => function ($q) {
                     $q->where('enable', true);
                 }])
                 ->find($id);
@@ -68,27 +71,30 @@ class EloquentCategoryRepository implements CategoryRepositoryInterface
     }
 
     /**
-     * Create category.
+     * Create product
      * @param array<string, mixed> $data
-     * @return \App\Models\Category|null
+     * 
+     * @return Product|null
      */
-    public function create(array $data): ?Category
+    public function create(array $data): Product|null
     {
         try {
             DB::beginTransaction();
-            $category = new Category();
-            $category->name = $data['name'];
-            $category->enable = 1;
+            $product = $this->product;
 
-            $category->save();
+            $product->name = $data['name'];
+            $product->description = $data['description'];
+            $product->enable = 1;
 
-            if (isset($data['product_ids'])) {
-                $category->products()->sync($data['product_ids']);
+            $product->save();
+
+            if (isset($data['category_ids'])) {
+                $product->categories()->sync($data['category_ids']);
             }
 
             DB::commit();
 
-            return $category;
+            return $product;
         } catch (\Exception $e) {
             DB::rollBack();
             Log::channel('exception')->error(sprintf("[%s] create : ", __CLASS__).$e->getMessage());
@@ -97,33 +103,37 @@ class EloquentCategoryRepository implements CategoryRepositoryInterface
     }
 
     /**
-     * Update category.
-     * @param Category $category
+     * Update product
+     * @param Product $product
      * @param array<string, mixed> $data
-     * @return \App\Models\Category|null
+     * 
+     * @return Product|null
      */
-    public function update(Category $category, array $data): ?Category
+    public function update(Product $product, array $data): Product|null
     {
         try {
             DB::beginTransaction();
             if (isset($data['name'])) {
-                $category->name = $data['name'];
+                $product->name = $data['name'];
+            }
+            if (isset($data['description'])) {
+                $product->description = $data['description'];
             }
             if (isset($data['enable'])) {
-                $category->enable = $data['enable'];
+                $product->enable = $data['enable'];
             }
 
-            $category->save();
+            $product->save();
 
-            if (isset($data['product_ids'])) {
-                $category->products()->sync($data['product_ids']);
+            if (isset($data['category_ids'])) {
+                $product->categories()->sync($data['category_ids']);
             }
 
-            $category->load('products');
+            $product->load('categories');
 
             DB::commit();
 
-            return $category;
+            return $product;
         } catch (\Exception $e) {
             DB::rollBack();
             Log::channel('exception')->error(sprintf("[%s] update : ", __CLASS__).$e->getMessage());
@@ -132,14 +142,15 @@ class EloquentCategoryRepository implements CategoryRepositoryInterface
     }
 
     /**
-     * Delete category.
-     * @param Category $category
+     * Delete product
+     * @param Product $product
+     * 
      * @return bool
      */
-    public function delete(Category $category): bool
+    public function delete(Product $product): bool
     {
         try {
-            return $category->delete();
+            return $product->delete();
         } catch (\Exception $e) {
             Log::channel('exception')->error(sprintf("[%s] delete : ", __CLASS__).$e->getMessage());
             return false;
@@ -147,14 +158,15 @@ class EloquentCategoryRepository implements CategoryRepositoryInterface
     }
 
     /**
-     * Get categories by ids.
+     * Get products by ids
      * @param array<int> $ids
-     * @return \Illuminate\Database\Eloquent\Collection|null
+     * 
+     * @return Collection|null
      */
-    public function getByIds(array $ids): ?\Illuminate\Database\Eloquent\Collection
+    public function getByIds(array $ids): Collection|null
     {
         try {
-            return $this->model
+            return $this->product
                 ->whereIn('id', $ids)
                 ->where('enable', true)
                 ->get();
