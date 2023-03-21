@@ -106,6 +106,19 @@ class ProductService
                 return new CustomException('Product not found', 404);
             }
 
+            if (isset($data['category_ids'])) {
+                // Check category
+                $categories = $this->categoryService->getByIds($data['category_ids']);
+                if (is_null($categories)) {
+                    return new CustomException('Category not found', 404);
+                }
+                $categoryIds = $categories->pluck('id')->toArray();
+                $diff = array_diff($data['category_ids'], $categoryIds);
+                if (count($diff) > 0) {
+                    return new CustomException(sprintf('Category with id %s not found', implode(", ", $diff)), 400);
+                }
+            }
+
             return $this->productRepository->update($product, $data);
         } catch (\Exception $e) {
             Log::channel('exception')->error(sprintf("[%s] update : ", __CLASS__).$e->getMessage());

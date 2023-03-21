@@ -111,6 +111,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
     public function update(Product $product, array $data): Product|null
     {
         try {
+            DB::beginTransaction();
             if (isset($data['name'])) {
                 $product->name = $data['name'];
             }
@@ -123,8 +124,17 @@ class EloquentProductRepository implements ProductRepositoryInterface
 
             $product->save();
 
+            if (isset($data['category_ids'])) {
+                $product->categories()->sync($data['category_ids']);
+            }
+
+            $product->load('categories');
+
+            DB::commit();
+
             return $product;
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::channel('exception')->error(sprintf("[%s] update : ", __CLASS__).$e->getMessage());
             return null;
         }
