@@ -22,6 +22,7 @@ class CategoryResource extends JsonResource
         $response = [
             'id' => $this->id,
             'name' => $this->name,
+            'products' => $this->products ? ProductCategoryResource::collection($this->products) : [],
         ];
 
         if ($this->single) {

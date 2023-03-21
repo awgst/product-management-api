@@ -4,6 +4,7 @@ namespace App\Repository\Product;
 
 use App\Models\Product;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -153,6 +154,25 @@ class EloquentProductRepository implements ProductRepositoryInterface
         } catch (\Exception $e) {
             Log::channel('exception')->error(sprintf("[%s] delete : ", __CLASS__).$e->getMessage());
             return false;
+        }
+    }
+
+    /**
+     * Get products by ids
+     * @param array<int> $ids
+     * 
+     * @return Collection|null
+     */
+    public function getByIds(array $ids): Collection|null
+    {
+        try {
+            return $this->product
+                ->whereIn('id', $ids)
+                ->where('enable', true)
+                ->get();
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] getByIds : ", __CLASS__).$e->getMessage());
+            return null;
         }
     }
 }

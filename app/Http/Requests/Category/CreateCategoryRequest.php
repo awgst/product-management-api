@@ -14,7 +14,8 @@ class CreateCategoryRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|max:255'
+            'name' => 'required|string|max:255',
+            'product_ids' => 'required|array',
         ];
     }
 }
