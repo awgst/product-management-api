@@ -9,4 +9,5 @@ interface CategoryRepositoryInterface
 {
     public function getAll(array $filters): LengthAwarePaginator|null;
     public function getById(int $id): Category|null;
+    public function create(array $data): Category|null;
 }

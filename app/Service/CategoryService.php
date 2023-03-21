@@ -59,4 +59,21 @@ class CategoryService
             return null;
         }
     }
+
+    /**
+     * Create category.
+     * @param array<string, mixed> $data
+     * @return \App\Models\Category|CustomException|null
+     */
+    public function create(array $data): Category|CustomException|null
+    {
+        try {
+            $category = $this->categoryRepository->create($data);
+
+            return $category;
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] create : ", __CLASS__).$e->getMessage());
+            return null;
+        }
+    }
 }

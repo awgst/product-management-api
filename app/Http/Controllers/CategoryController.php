@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\CustomException;
+use App\Http\Requests\Category\CreateCategoryRequest;
 use App\Http\Resources\CategoryResource;
 use App\Service\CategoryService;
 use Illuminate\Http\Request;
@@ -88,6 +89,35 @@ class CategoryController extends Controller
             ], $ce->getCode());
         } catch (\Exception $e) {
             Log::channel('exception')->error(sprintf("[%s] show : ", __CLASS__).$e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong',
+                'data' => null,
+            ], 500);
+        }
+    }
+
+    /**
+     * Create new category.
+     * @param CreateCategoryRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function store(CreateCategoryRequest $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $data = $request->validated();
+            $category = $this->categoryService->create($data);
+            if ($category === null) {
+                throw new \Exception();
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Success',
+                'data' => (new CategoryResource($category))->single(),
+            ], 200);
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] store : ", __CLASS__).$e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Something went wrong',
