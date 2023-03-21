@@ -113,4 +113,20 @@ class EloquentProductRepository implements ProductRepositoryInterface
             return null;
         }
     }
+
+    /**
+     * Delete product
+     * @param Product $product
+     * 
+     * @return bool
+     */
+    public function delete(Product $product): bool
+    {
+        try {
+            return $product->delete();
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] delete : ", __CLASS__).$e->getMessage());
+            return false;
+        }
+    }
 }

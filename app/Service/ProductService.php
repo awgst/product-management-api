@@ -94,4 +94,25 @@ class ProductService
             return null;
         }
     }
+
+    /**
+     * Delete product
+     * @param int $id
+     * 
+     * @return bool|CustomException|null
+     */
+    public function delete(int $id): bool|CustomException|null
+    {
+        try {
+            $product = $this->productRepository->getById($id);
+            if (is_null($product)) {
+                return new CustomException('Product not found', 404);
+            }
+
+            return $this->productRepository->delete($product);
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] delete : ", __CLASS__).$e->getMessage());
+            return null;
+        }
+    }
 }
