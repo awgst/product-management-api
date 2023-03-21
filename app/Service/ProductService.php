@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Exceptions\CustomException;
 use App\Models\Product;
 use App\Repository\Product\ProductRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -31,6 +32,27 @@ class ProductService
             return $this->productRepository->getAll($filters);
         } catch (\Exception $e) {
             Log::channel('exception')->error(sprintf("[%s] getAll : ", __CLASS__).$e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Get product by id
+     * @param int $id
+     * 
+     * @return Product|CustomException|null
+     */
+    public function getById(int $id): Product|CustomException|null
+    {
+        try {
+            $category = $this->productRepository->getById($id);
+            if (is_null($category)) {
+                return new CustomException('Product not found', 404);
+            }
+
+            return $category;
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] getById : ", __CLASS__).$e->getMessage());
             return null;
         }
     }

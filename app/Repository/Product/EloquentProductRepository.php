@@ -44,4 +44,20 @@ class EloquentProductRepository implements ProductRepositoryInterface
             return null;
         }
     }
+
+    /**
+     * Get product by id
+     * @param int $id
+     * 
+     * @return Product|null
+     */
+    public function getById(int $id): Product|null
+    {
+        try {
+            return $this->product->find($id);
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] getById : ", __CLASS__).$e->getMessage());
+            return null;
+        }
+    }
 }
