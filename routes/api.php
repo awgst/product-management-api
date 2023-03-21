@@ -21,5 +21,6 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('/{id}', [CategoryController::class, 'show']);
         Route::post('/', [CategoryController::class, 'store']);
         Route::put('/{id}', [CategoryController::class, 'update']);
+        Route::delete('/{id}', [CategoryController::class, 'destroy']);
     });
 });

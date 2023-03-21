@@ -165,4 +165,42 @@ class CategoryController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Delete category by id.
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroy(int $id): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $category = $this->categoryService->delete($id);
+            if ($category === null) {
+                throw new \Exception();
+            }
+
+            if ($category instanceof CustomException) {
+                throw $category;
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Success',
+                'data' => null,
+            ], 200);
+        } catch (CustomException $ce) {
+            return response()->json([
+                'success' => false,
+                'message' => $ce->getMessage(),
+                'data' => null,
+            ], $ce->getCode());
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] destroy : ", __CLASS__).$e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong',
+                'data' => null,
+            ], 500);
+        }
+    }
 }
