@@ -11,4 +11,5 @@ interface CategoryRepositoryInterface
     public function getById(int $id): Category|null;
     public function create(array $data): Category|null;
     public function update(Category $category, array $data): Category|null;
+    public function delete(Category $category): bool;
 }

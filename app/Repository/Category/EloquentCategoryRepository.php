@@ -104,4 +104,19 @@ class EloquentCategoryRepository implements CategoryRepositoryInterface
             return null;
         }
     }
+
+    /**
+     * Delete category.
+     * @param Category $category
+     * @return bool
+     */
+    public function delete(Category $category): bool
+    {
+        try {
+            return $category->delete();
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] delete : ", __CLASS__).$e->getMessage());
+            return false;
+        }
+    }
 }

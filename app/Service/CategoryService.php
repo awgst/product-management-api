@@ -98,4 +98,25 @@ class CategoryService
             return null;
         }
     }
+
+    /**
+     * Delete category.
+     * @param int $id
+     * @return bool|CustomException|null
+     */
+    public function delete(int $id): bool|CustomException|null
+    {
+        try {
+            $category = $this->categoryRepository->getById($id);
+            if (is_null($category)) {
+                return new CustomException('Category not found', 404);
+            }
+            $deleted = $this->categoryRepository->delete($category);
+
+            return $deleted;
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] delete : ", __CLASS__).$e->getMessage());
+            return null;
+        }
+    }
 }
