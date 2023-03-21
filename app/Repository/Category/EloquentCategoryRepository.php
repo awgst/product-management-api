@@ -58,4 +58,25 @@ class EloquentCategoryRepository implements CategoryRepositoryInterface
             return null;
         }
     }
+
+    /**
+     * Create category.
+     * @param array<string, mixed> $data
+     * @return \App\Models\Category|null
+     */
+    public function create(array $data): ?Category
+    {
+        try {
+            $category = new Category();
+            $category->name = $data['name'];
+            $category->enable = 1;
+
+            $category->save();
+
+            return $category;
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] create : ", __CLASS__).$e->getMessage());
+            return null;
+        }
+    }
 }
