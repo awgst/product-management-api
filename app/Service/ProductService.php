@@ -56,4 +56,20 @@ class ProductService
             return null;
         }
     }
+
+    /**
+     * Create product
+     * @param array<string, mixed> $data
+     * 
+     * @return Product|null
+     */
+    public function create(array $data): Product|null
+    {
+        try {
+            return $this->productRepository->create($data);
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] create : ", __CLASS__).$e->getMessage());
+            return null;
+        }
+    }
 }

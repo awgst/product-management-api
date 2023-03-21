@@ -60,4 +60,28 @@ class EloquentProductRepository implements ProductRepositoryInterface
             return null;
         }
     }
+
+    /**
+     * Create product
+     * @param array<string, mixed> $data
+     * 
+     * @return Product|null
+     */
+    public function create(array $data): Product|null
+    {
+        try {
+            $product = $this->product;
+
+            $product->name = $data['name'];
+            $product->description = $data['description'];
+            $product->enable = 1;
+
+            $product->save();
+
+            return $product;
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] create : ", __CLASS__).$e->getMessage());
+            return null;
+        }
+    }
 }
