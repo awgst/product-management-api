@@ -15,9 +15,15 @@ class ProductService
      */
     private $productRepository;
 
-    public function __construct(ProductRepositoryInterface $productRepository)
+    /**
+     * @var CategoryService
+     */
+    private $categoryService;
+
+    public function __construct(ProductRepositoryInterface $productRepository, CategoryService $categoryService)
     {
         $this->productRepository = $productRepository;
+        $this->categoryService = $categoryService;
     }
 
     /**
@@ -61,11 +67,23 @@ class ProductService
      * Create product
      * @param array<string, mixed> $data
      * 
-     * @return Product|null
+     * @return Product|CustomException|null
      */
-    public function create(array $data): Product|null
+    public function create(array $data): Product|CustomException|null
     {
         try {
+            // Check category
+            $categories = $this->categoryService->getByIds($data['category_ids']);
+            if (is_null($categories)) {
+                return new CustomException('Category not found', 404);
+            }
+            $categoryIds = $categories->pluck('id')->toArray();
+            $diff = array_diff($data['category_ids'], $categoryIds);
+            if (count($diff) > 0) {
+                return new CustomException(sprintf('Category with id %s not found', implode(", ", $diff)), 400);
+            }
+
+            // Create product
             return $this->productRepository->create($data);
         } catch (\Exception $e) {
             Log::channel('exception')->error(sprintf("[%s] create : ", __CLASS__).$e->getMessage());

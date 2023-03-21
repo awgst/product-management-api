@@ -119,4 +119,22 @@ class EloquentCategoryRepository implements CategoryRepositoryInterface
             return false;
         }
     }
+
+    /**
+     * Get categories by ids.
+     * @param array<int> $ids
+     * @return \Illuminate\Database\Eloquent\Collection|null
+     */
+    public function getByIds(array $ids): ?\Illuminate\Database\Eloquent\Collection
+    {
+        try {
+            return $this->model
+                ->whereIn('id', $ids)
+                ->where('enable', true)
+                ->get();
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] getByIds : ", __CLASS__).$e->getMessage());
+            return null;
+        }
+    }
 }

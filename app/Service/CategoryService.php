@@ -119,4 +119,19 @@ class CategoryService
             return null;
         }
     }
+
+    /**
+     * Get by ids
+     * @param array<int> $ids
+     * @return \Illuminate\Database\Eloquent\Collection|null
+     */
+    public function getByIds(array $ids): ?\Illuminate\Database\Eloquent\Collection
+    {
+        try {
+            return $this->categoryRepository->getByIds($ids);
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] getByIds : ", __CLASS__).$e->getMessage());
+            return null;
+        }
+    }
 }

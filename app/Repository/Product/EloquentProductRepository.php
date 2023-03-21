@@ -4,6 +4,7 @@ namespace App\Repository\Product;
 
 use App\Models\Product;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class EloquentProductRepository implements ProductRepositoryInterface
@@ -35,6 +36,9 @@ class EloquentProductRepository implements ProductRepositoryInterface
             $order = $filters['order'] ?? 'asc';
 
             return $this->product
+                ->with(['categories' => function ($q) {
+                    $q->where('enable', true);
+                }])
                 ->filter($filters)
                 ->where('enable', true)
                 ->orderBy($orderBy, $order)
@@ -54,7 +58,11 @@ class EloquentProductRepository implements ProductRepositoryInterface
     public function getById(int $id): Product|null
     {
         try {
-            return $this->product->find($id);
+            return $this->product
+                ->with(['categories' => function ($q) {
+                    $q->where('enable', true);
+                }])
+                ->find($id);
         } catch (\Exception $e) {
             Log::channel('exception')->error(sprintf("[%s] getById : ", __CLASS__).$e->getMessage());
             return null;
@@ -70,6 +78,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
     public function create(array $data): Product|null
     {
         try {
+            DB::beginTransaction();
             $product = $this->product;
 
             $product->name = $data['name'];
@@ -78,8 +87,15 @@ class EloquentProductRepository implements ProductRepositoryInterface
 
             $product->save();
 
+            if (isset($data['category_ids'])) {
+                $product->categories()->sync($data['category_ids']);
+            }
+
+            DB::commit();
+
             return $product;
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::channel('exception')->error(sprintf("[%s] create : ", __CLASS__).$e->getMessage());
             return null;
         }

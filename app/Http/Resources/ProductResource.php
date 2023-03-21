@@ -23,6 +23,7 @@ class ProductResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
+            'categories' => $this->categories ? CategoryResource::collection($this->categories) : [],
         ];
 
         if ($this->single) {
