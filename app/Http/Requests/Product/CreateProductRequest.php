@@ -17,6 +17,7 @@ class CreateProductRequest extends FormRequest
             'name' => 'required|string|max:255',
             'description' => 'required|string|max:255',
             'category_ids' => 'required|array',
+            'files' => 'required|array',
         ];
     }
 }

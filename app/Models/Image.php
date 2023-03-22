@@ -35,4 +35,13 @@ class Image extends Model
     {
         return asset('storage/images/'.$this->file);
     }
+
+    /**
+     * Product relationship
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function products(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Product::class, 'product_images');
+    }
 }

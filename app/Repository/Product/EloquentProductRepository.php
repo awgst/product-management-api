@@ -80,7 +80,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
     {
         try {
             DB::beginTransaction();
-            $product = $this->product;
+            $product = new Product();
 
             $product->name = $data['name'];
             $product->description = $data['description'];
@@ -90,6 +90,10 @@ class EloquentProductRepository implements ProductRepositoryInterface
 
             if (isset($data['category_ids'])) {
                 $product->categories()->sync($data['category_ids']);
+            }
+
+            if (isset($data['image_ids'])) {
+                $product->images()->sync($data['image_ids']);
             }
 
             DB::commit();
