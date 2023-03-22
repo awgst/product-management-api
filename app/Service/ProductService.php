@@ -141,6 +141,24 @@ class ProductService
                 }
             }
 
+            if (isset($data['files'])) {
+                // Create image
+                $imageIds = [];
+                foreach ($data['files'] as $key => $file) {
+                    $originalFileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                    $imageData = [
+                        'name' => $data['file_name'][$key] ?? $originalFileName,
+                        'file' => $file,
+                    ];
+                    $image = $this->imageService->create($imageData);
+                    if ($image instanceof CustomException || is_null($image)) {
+                        return $image;
+                    }
+                    $imageIds[] = $image->id;
+                }
+                $data['image_ids'] = $imageIds;
+            }
+
             return $this->productRepository->update($product, $data);
         } catch (\Exception $e) {
             Log::channel('exception')->error(sprintf("[%s] update : ", __CLASS__).$e->getMessage());

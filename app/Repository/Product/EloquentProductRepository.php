@@ -133,7 +133,11 @@ class EloquentProductRepository implements ProductRepositoryInterface
                 $product->categories()->sync($data['category_ids']);
             }
 
-            $product->load('categories');
+            if (isset($data['image_ids'])) {
+                $product->images()->sync($data['image_ids']);
+            }
+
+            $product->load(['categories', 'images']);
 
             DB::commit();
 
