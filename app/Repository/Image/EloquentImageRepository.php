@@ -66,7 +66,7 @@ class EloquentImageRepository implements ImageRepositoryInterface
     public function create(array $data): Image|null
     {
         try {
-            $image = $this->model;
+            $image = new Image();
             $image->name = $data['name'];
             $image->file = $data['file'];
             $image->enable = 1;

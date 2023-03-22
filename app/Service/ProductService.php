@@ -20,10 +20,16 @@ class ProductService
      */
     private $categoryService;
 
-    public function __construct(ProductRepositoryInterface $productRepository, CategoryService $categoryService)
+    /**
+     * @var ImageService
+     */
+    private $imageService;
+
+    public function __construct(ProductRepositoryInterface $productRepository, CategoryService $categoryService, ImageService $imageService)
     {
         $this->productRepository = $productRepository;
         $this->categoryService = $categoryService;
+        $this->imageService = $imageService;
     }
 
     /**
@@ -83,6 +89,22 @@ class ProductService
                 return new CustomException(sprintf('Category with id %s not found', implode(", ", $diff)), 400);
             }
 
+            // Create image
+            $imageIds = [];
+            foreach ($data['files'] as $key => $file) {
+                $originalFileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $imageData = [
+                    'name' => $data['file_name'][$key] ?? $originalFileName,
+                    'file' => $file,
+                ];
+                $image = $this->imageService->create($imageData);
+                if ($image instanceof CustomException || is_null($image)) {
+                    return $image;
+                }
+                $imageIds[] = $image->id;
+            }
+            $data['image_ids'] = $imageIds;
+
             // Create product
             return $this->productRepository->create($data);
         } catch (\Exception $e) {
@@ -117,6 +139,24 @@ class ProductService
                 if (count($diff) > 0) {
                     return new CustomException(sprintf('Category with id %s not found', implode(", ", $diff)), 400);
                 }
+            }
+
+            if (isset($data['files'])) {
+                // Create image
+                $imageIds = [];
+                foreach ($data['files'] as $key => $file) {
+                    $originalFileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                    $imageData = [
+                        'name' => $data['file_name'][$key] ?? $originalFileName,
+                        'file' => $file,
+                    ];
+                    $image = $this->imageService->create($imageData);
+                    if ($image instanceof CustomException || is_null($image)) {
+                        return $image;
+                    }
+                    $imageIds[] = $image->id;
+                }
+                $data['image_ids'] = $imageIds;
             }
 
             return $this->productRepository->update($product, $data);

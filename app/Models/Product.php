@@ -21,6 +21,14 @@ class Product extends Model
     }
 
     /**
+     * Get the images for the product.
+     */
+    public function images(): BelongsToMany
+    {
+        return $this->belongsToMany(Image::class, 'product_images');
+    }
+
+    /**
      * Scope filter.
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @param array<string, mixed> $filters

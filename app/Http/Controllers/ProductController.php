@@ -102,7 +102,7 @@ class ProductController extends Controller
     public function store(CreateProductRequest $request)
     {
         try {
-            $product = $this->productService->create($request->validated());
+            $product = $this->productService->create($request->all());
             if ($product === null) {
                 throw new \Exception();
             }
