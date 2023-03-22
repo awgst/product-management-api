@@ -117,4 +117,26 @@ class ImageService
             return null;
         }
     }
+
+    /**
+     * Delete image
+     * @param int $id
+     * 
+     * @return bool|CustomException|null
+     */
+    public function delete(int $id): bool|CustomException|null
+    {
+        try {
+            $image = $this->imageRepository->getById($id);
+            if (is_null($image)) {
+                return new CustomException('Image not found', 404);
+            }
+
+            Upload::delete('images/'.$image->file);
+            return $this->imageRepository->delete($image);
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] delete : ", __CLASS__).$e->getMessage());
+            return null;
+        }
+    }
 }
