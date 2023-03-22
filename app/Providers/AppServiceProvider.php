@@ -31,5 +31,9 @@ class AppServiceProvider extends ServiceProvider
             'App\Repository\Product\ProductRepositoryInterface',
             'App\Repository\Product\EloquentProductRepository'
         );
+        $this->app->bind(
+            'App\Repository\Image\ImageRepositoryInterface',
+            'App\Repository\Image\EloquentImageRepository'
+        );
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ImageController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -31,5 +32,13 @@ Route::group(['prefix' => 'v1'], function () {
         Route::post('/', [ProductController::class, 'store']);
         Route::put('/{id}', [ProductController::class, 'update']);
         Route::delete('/{id}', [ProductController::class, 'destroy']);
+    });
+
+    Route::group(['prefix' => 'image'], function () {
+        Route::get('/', [ImageController::class, 'index']);
+        Route::get('/{id}', [ImageController::class, 'show']);
+        Route::post('/', [ImageController::class, 'store']);
+        Route::put('/{id}', [ImageController::class, 'update']);
+        Route::delete('/{id}', [ImageController::class, 'destroy']);
     });
 });
