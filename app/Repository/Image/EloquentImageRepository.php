@@ -56,4 +56,27 @@ class EloquentImageRepository implements ImageRepositoryInterface
             return null;
         }
     }
+
+    /**
+     * Create image
+     * @param array $data
+     * 
+     * @return Image|null
+     */
+    public function create(array $data): Image|null
+    {
+        try {
+            $image = $this->model;
+            $image->name = $data['name'];
+            $image->file = $data['file'];
+            $image->enable = 1;
+
+            $image->save();
+            
+            return $image;
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] create : ", __CLASS__).$e->getMessage());
+            return null;
+        }
+    }
 }

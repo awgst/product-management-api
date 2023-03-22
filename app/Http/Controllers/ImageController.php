@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\CustomException;
+use App\Http\Requests\Image\CreateImageRequest;
 use App\Http\Resources\ImageResource;
 use App\Service\ImageService;
 use Illuminate\Http\Request;
@@ -92,6 +93,47 @@ class ImageController extends Controller
             ], $ce->getCode());
         } catch (\Exception $e) {
             Log::channel('exception')->error(sprintf("[%s] show : ", __CLASS__).$e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Store new image.
+     * @param CreateImageRequest $request
+     * 
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function store(CreateImageRequest $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $image = $this->imageService->create($request->data());
+            if ($image instanceof \App\Exceptions\CustomException) {
+                throw $image;
+            }
+
+            if ($image === null) {
+                throw new \Exception();
+            }
+
+            $transformed = (new ImageResource($image))->single();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Success',
+                'data' => $transformed
+            ], 200);
+        } catch(CustomException $ce) {
+            return response()->json([
+                'success' => false,
+                'message' => $ce->getMessage(),
+                'error' => $ce->getMessage()
+            ], $ce->getCode());
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] store : ", __CLASS__).$e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Something went wrong',
