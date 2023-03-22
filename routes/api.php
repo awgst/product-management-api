@@ -37,5 +37,6 @@ Route::group(['prefix' => 'v1'], function () {
     Route::group(['prefix' => 'image'], function () {
         Route::get('/', [ImageController::class, 'index']);
         Route::get('/{id}', [ImageController::class, 'show']);
+        Route::post('/', [ImageController::class, 'store']);
     });
 });
