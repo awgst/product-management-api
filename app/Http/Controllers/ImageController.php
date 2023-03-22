@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\CustomException;
 use App\Http\Requests\Image\CreateImageRequest;
+use App\Http\Requests\Image\UpdateImageRequest;
 use App\Http\Resources\ImageResource;
 use App\Service\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Termwind\Components\Dd;
 
 class ImageController extends Controller
 {
@@ -55,7 +57,7 @@ class ImageController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Something went wrong',
-                'error' => $e->getMessage()
+                'error' => null
             ], 500);
         }
     }
@@ -89,14 +91,14 @@ class ImageController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => $ce->getMessage(),
-                'error' => $ce->getMessage()
+                'error' => null
             ], $ce->getCode());
         } catch (\Exception $e) {
             Log::channel('exception')->error(sprintf("[%s] show : ", __CLASS__).$e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Something went wrong',
-                'error' => $e->getMessage()
+                'error' => null
             ], 500);
         }
     }
@@ -130,14 +132,56 @@ class ImageController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => $ce->getMessage(),
-                'error' => $ce->getMessage()
+                'error' => null
             ], $ce->getCode());
         } catch (\Exception $e) {
             Log::channel('exception')->error(sprintf("[%s] store : ", __CLASS__).$e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Something went wrong',
-                'error' => $e->getMessage()
+                'error' => null
+            ], 500);
+        }
+    }
+
+    /**
+     * Update image by id.
+     * @param UpdateImageRequest $request
+     * @param int $id
+     * 
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update(UpdateImageRequest $request, int $id): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $image = $this->imageService->update($id, $request->data());
+            if ($image instanceof \App\Exceptions\CustomException) {
+                throw $image;
+            }
+
+            if ($image === null) {
+                throw new \Exception();
+            }
+
+            $transformed = (new ImageResource($image))->single();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Success',
+                'data' => $transformed
+            ], 200);
+        } catch(CustomException $ce) {
+            return response()->json([
+                'success' => false,
+                'message' => $ce->getMessage(),
+                'error' => null
+            ], $ce->getCode());
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] update : ", __CLASS__).$e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong',
+                'error' => null
             ], 500);
         }
     }

@@ -10,4 +10,5 @@ interface ImageRepositoryInterface
     public function getAll(array $filters): LengthAwarePaginator|null;
     public function getById(int $id): Image|null;
     public function create(array $data): Image|null;
+    public function update(Image $image, array $data): Image|null;
 }

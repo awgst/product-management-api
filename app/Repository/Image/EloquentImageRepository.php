@@ -79,4 +79,35 @@ class EloquentImageRepository implements ImageRepositoryInterface
             return null;
         }
     }
+
+    /**
+     * Update image
+     * @param Image $image
+     * @param array $data
+     * 
+     * @return Image|null
+     */
+    public function update(Image $image, array $data): Image|null
+    {
+        try {
+            if (isset($data['name'])) {
+                $image->name = $data['name'];
+            }
+
+            if (isset($data['file'])) {
+                $image->file = $data['file'];
+            }
+
+            if (isset($data['enable'])) {
+                $image->enable = $data['enable'];
+            }
+
+            $image->save();
+            
+            return $image;
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] update : ", __CLASS__).$e->getMessage());
+            return null;
+        }
+    }
 }

@@ -83,4 +83,38 @@ class ImageService
             return null;
         }
     }
+
+    /**
+     * Update image
+     * @param int $id
+     * @param array<string, mixed> $data
+     * 
+     * @return \App\Models\Image|CustomException|null
+     */
+    public function update(int $id, array $data): Image|CustomException|null
+    {
+        try {
+            $image = $this->imageRepository->getById($id);
+            if (is_null($image)) {
+                return new CustomException('Image not found', 404);
+            }
+
+            if (isset($data['file'])) {
+                Upload::delete('images/'.$image->file);
+                $uploaded = Upload::as($data['name'])
+                    ->upload($data['file'], 'images');
+                $data['file'] = $uploaded['file'];
+            }
+
+            $image = $this->imageRepository->update($image, $data);
+            if (is_null($image)) {
+                return new CustomException('Image not updated', 500);
+            }
+
+            return $image;
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] update : ", __CLASS__).$e->getMessage());
+            return null;
+        }
+    }
 }
