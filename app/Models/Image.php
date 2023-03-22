@@ -10,4 +10,29 @@ class Image extends Model
     use HasFactory;
 
     public $timestamps = false; 
+
+    /**
+     * Scope filter.
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param array<string, mixed> $filters
+     * 
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeFilter($query, array $filters): \Illuminate\Database\Eloquent\Builder
+    {
+        if (isset($filters['name'])) {
+            $query->where('name', 'like', '%'.$filters['name'].'%');
+        }
+
+        return $query;
+    }
+
+    /**
+     * Accessor for url attribute
+     * @return string
+     */
+    public function getUrlAttribute(): string
+    {
+        return asset('storage/images/'.$this->file);
+    }
 }
