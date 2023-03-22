@@ -110,4 +110,20 @@ class EloquentImageRepository implements ImageRepositoryInterface
             return null;
         }
     }
+
+    /**
+     * Delete image
+     * @param Image $image
+     * 
+     * @return bool
+     */
+    public function delete(Image $image): bool
+    {
+        try {
+            return $image->delete();
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] delete : ", __CLASS__).$e->getMessage());
+            return false;
+        }
+    }
 }

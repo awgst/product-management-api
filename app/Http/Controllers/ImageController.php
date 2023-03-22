@@ -185,4 +185,43 @@ class ImageController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Delete image by id.
+     * @param int $id
+     * 
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroy(int $id): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $image = $this->imageService->delete($id);
+            if ($image instanceof \App\Exceptions\CustomException) {
+                throw $image;
+            }
+
+            if ($image === null) {
+                throw new \Exception();
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Success',
+                'data' => null
+            ], 200);
+        } catch(CustomException $ce) {
+            return response()->json([
+                'success' => false,
+                'message' => $ce->getMessage(),
+                'error' => null
+            ], $ce->getCode());
+        } catch (\Exception $e) {
+            Log::channel('exception')->error(sprintf("[%s] destroy : ", __CLASS__).$e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong',
+                'error' => null
+            ], 500);
+        }
+    }
 }

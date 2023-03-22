@@ -39,5 +39,6 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('/{id}', [ImageController::class, 'show']);
         Route::post('/', [ImageController::class, 'store']);
         Route::put('/{id}', [ImageController::class, 'update']);
+        Route::delete('/{id}', [ImageController::class, 'destroy']);
     });
 });
