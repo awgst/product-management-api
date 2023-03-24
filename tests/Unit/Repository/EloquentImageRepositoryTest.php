@@ -5,10 +5,13 @@ namespace Tests\Unit\Repository;
 use App\Models\Image;
 use App\Repository\Image\EloquentImageRepository;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class EloquentImageRepositoryTest extends TestCase
 {
+    use RefreshDatabase;
+    
     /**
      * @var EloquentImageRepository
      */

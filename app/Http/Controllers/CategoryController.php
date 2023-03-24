@@ -112,11 +112,21 @@ class CategoryController extends Controller
                 throw new \Exception();
             }
 
+            if ($category instanceof CustomException) {
+                throw $category;
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Success',
                 'data' => (new CategoryResource($category))->single(),
             ], 200);
+        } catch (CustomException $ce) {
+            return response()->json([
+                'success' => false,
+                'message' => $ce->getMessage(),
+                'data' => null,
+            ], $ce->getCode());
         } catch (\Exception $e) {
             Log::channel('exception')->error(sprintf("[%s] store : ", __CLASS__).$e->getMessage());
             return response()->json([
