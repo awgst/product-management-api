@@ -6,10 +6,13 @@ use App\Models\Product;
 use App\Repository\Product\EloquentProductRepository;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class EloquentProductRepositoryTest extends TestCase
 {
+    use RefreshDatabase;
+    
     /**
      * @var EloquentProductRepository
      */
